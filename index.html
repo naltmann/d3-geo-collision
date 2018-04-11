@@ -74,8 +74,8 @@ var path = d3.geo.path().projection(projection);
 	}
 
 	var minX = d3.min(xs);
-	var maxX = d3.max(xs); //220
-	var xScale = d3.scale.linear().domain([minX, maxX]).range([-165, -125]); //left edgeoriginal -50 -30
+	var maxX = d3.max(xs);
+	var xScale = d3.scale.linear().domain([minX, maxX]).range([-165, -125]); //original -50 -30
 
 	var minY = d3.min(ys)
 	var maxY = d3.max(ys);
