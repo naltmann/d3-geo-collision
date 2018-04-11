@@ -1,6 +1,4 @@
 [
-{"alias":"CHICAGO","continent":"North America","points":55},
-{"alias":"USA","continent":"North America","points":45},
 {"alias":"Australia-NSW-Sydney","continent":"North America","points":1},
 {"alias":"Australia-VIC-Melbourne","continent":"North America","points":1},
 {"alias":"Canada-BC-Vancouver","continent":"North America","points":3},
