@@ -30,7 +30,7 @@
   		stroke-linejoin: round;
 	}
 </style>
-  
+
   </head>
 <body>
 	<div id="map"></div>
@@ -56,7 +56,7 @@ var path = d3.geo.path().projection(projection);
 		  .append('svg:svg')
 		  .attr('width', width)
 		  .attr('height', height);
- 
+
   d3.json("us.json", function(error, topo) {
 
   	states = topojson.feature(topo, topo.objects.states).features
@@ -69,21 +69,21 @@ var path = d3.geo.path().projection(projection);
 	  .style("fill", "steelblue")
 	  .attr("d", path);
 
-	// put border around states 
+	// put border around states
   	svg.append("path")
 	  .datum(topojson.mesh(topo, topo.objects.states, function(a, b) { return a !== b; }))
 	  .attr("class", "mesh")
 	  .attr("d", path);
 
 	});
-  
 
-	var url = "http://enjalot.github.io/wwsd/data/world/world-110m.geojson";
+
+	var url = "https://enjalot.github.io/wwsd/data/world/world-110m.geojson";
 	d3.json(url, function(err, geojson) {
 	  svg.append("path")
 		.attr("d", path(geojson))
 	})
-		  
+
   d3.json('coordinates.json', function(coordinates) {
 
 
@@ -140,10 +140,10 @@ var path = d3.geo.path().projection(projection);
 				  svg.selectAll('text')
 					 .attr('x', function(node) { return node.x; })
 					 .attr('y', function(node) { return node.y+5; })
-					 
+
 					 //Hide labels if circle is below a certain size
 					 .attr('opacity', function(node) {
-						
+
 					   if (node.radius < 999) {
 						 return 0;
 					   }
@@ -210,7 +210,7 @@ var path = d3.geo.path().projection(projection);
 	}
   }
 
- 
+
 })();
 
 
