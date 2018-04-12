@@ -34,20 +34,26 @@
 	</head>
 <body>
 	<div id="map"></div>
-	<script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
 	<script type="text/javascript" src="https://d3js.org/topojson.v1.min.js"></script>
 
 <script type="text/javascript">
+	var width = 1800;
+	var height = 900;
 
 // set projection
-var projection = d3.geo.mercator();
+var projection = 
+	d3.geo.mercator()
+	.translate([width/2,height/2])
+	.scale(1800/Math.PI/2);
 
 // create path variable
 var path = d3.geo.path().projection(projection);
 
 (function() {
-	var width = 1800;
-	var height = 900;
+
+
+
 	var padding = 1;
 	var k;
 	var node;
@@ -64,22 +70,6 @@ var path = d3.geo.path().projection(projection);
 	d3.json('coordinates.json', function(coordinates) {
 
 
-	var coords = [];
-	var xs = [];
-	var ys = []
-	for (alias in coordinates) {
-		coords.push(coordinates[alias]);
-		xs.push(coordinates[alias][0]);
-		ys.push(coordinates[alias][1]);
-	}
-
-	var minX = d3.min(xs);
-	var maxX = d3.max(xs);
-	var xScale = d3.scale.linear().domain([minX, maxX]).range([-165, -125]); //original -50 -30
-
-	var minY = d3.min(ys)
-	var maxY = d3.max(ys);
-	var yScale = d3.scale.linear().domain([minY, maxY]).range([-95, -75]); //original -20 -10
 
 	d3.json('locations.json', function(countries) {
 
@@ -89,72 +79,48 @@ var path = d3.geo.path().projection(projection);
 		for (i=0; i < countries.length; i++) {
 		node = countries[i];
 		node.coordinates = coordinates[node.alias];
-		node.cx = xScale(projection(node.coordinates)[0]);
-		node.cy = yScale(projection(node.coordinates)[1]);
+		node.x = (projection(node.coordinates)[0]);
+		node.y = (projection(node.coordinates)[1]);
 		node.radius = pointScale(node.points);
 		nodes.push(node);
 		}
 
+
+		var points = points_layer.selectAll('circle')
+		  .data(nodes.filter(function(n) { return !n.fixed; }) )
+		  .enter().append('svg:circle')
+	      .attr('cx', function(node) {
+			return node.x;
+		  })
+		  .attr('cy', function(node) {
+			return node.y;
+		  })
+		  .attr('r', function(node) {
+			return node.radius;
+		  })
+		  .attr('title', function(node) {
+			return node.alias;
+		  })
+		  .attr('class', function(node) {
+			return node.continent.replace(' ', '');
+		  });
+
 		force = d3.layout.force()
 				.nodes(nodes)
-				.links([])
 				.size([width, height])
-				.charge(function(d) {
-					-Math.pow(d.radius*5.0, 2.0) / 8
-				})
-				.gravity(1.7)
+				.charge(0)
+				.gravity(0)
 				.on('tick', function(e) {
-					k = 10 * e.alpha;
-					for (i=0; i < nodes.length; i++) {
-					nodes[i].x += k * nodes[i].cx
-					nodes[i].y += k * nodes[i].cy
-					}
-					svg.selectAll('circle')
-					 .each(collide(.1, nodes, pointScale))
+
+					points
+					 .each(collide(.004, nodes, pointScale))
 					 .attr('cx', function(node) { return node.x; })
 					 .attr('cy', function(node) { return node.y; });
 
-					svg.selectAll('text')
-					 .attr('x', function(node) { return node.x; })
-					 .attr('y', function(node) { return node.y+5; })
-
-					 //Hide labels if circle is below a certain size
-					 .attr('opacity', function(node) {
-
-						 if (node.radius < 999) {
-						 return 0;
-						 }
-						 return 1;
-					 });
-					 ;
 				})
 				.start();
 
-		points_layer.selectAll('circle')
-			.data(nodes)
-		.enter().append('svg:circle')
-			.attr('cx', function(node) {
-			return node.cx;
-			})
-			.attr('cy', function(node) {
-			return node.cy;
-			})
-			.attr('r', function(node) {
-			return node.radius;
-			})
-			.attr('title', function(node) {
-			return node.alias;
-			})
-			.attr('class', function(node) {
-			return node.continent.replace(' ', '');
-			});
 
-	svg.selectAll('text')
-		.data(nodes)
-		.enter().append('svg:text')
-		.text(function(node) {
-			return node.alias;
-		});
 
 	});
 	});
@@ -187,28 +153,6 @@ var path = d3.geo.path().projection(projection);
 	}
 	}
 
-	/*
-	d3.json("us.json", function(error, topo) {
-		states = topojson.feature(topo, topo.objects.states).features
-
-		// add states from topojson
-		svg.selectAll("path")
-			.data(states).enter()
-			.append("path")
-			.attr("class", "feature")
-			.style("fill", "steelblue")
-			.attr("d", path);
-
-		// put border around states
-			usmap_layer.append("path")
-			.datum(topojson.mesh(topo, topo.objects.states, function(a, b) { return a !== b; }))
-			.attr("class", "mesh")
-			.attr("d", path);
-
-	});
-	*/
-
-
 	var url = "https://enjalot.github.io/wwsd/data/world/world-110m.geojson";
 	d3.json(url, function(err, geojson) {
 		worldmap_layer.append("path")
@@ -222,4 +166,3 @@ var path = d3.geo.path().projection(projection);
 
 	</body>
 </html>
-
